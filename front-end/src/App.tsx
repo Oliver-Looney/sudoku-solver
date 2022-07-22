@@ -60,12 +60,25 @@ function App() {
     console.log(JSON.stringify({grid:sudokuArr}));
   }
 
+  function solveSudoku() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (xhttp.readyState === 4) {
+        alert(xhttp.response);
+        console.log(xhttp);
+      }
+    }
+    xhttp.open("POST","https://rz1uamskd6.execute-api.eu-west-1.amazonaws.com/default/sudoku-solver-solve");
+    xhttp.send(JSON.stringify({grid:sudokuArr}));
+    console.log(JSON.stringify({grid:sudokuArr}));
+  }
+
   return (
     <div className="App">
       <header className="App-header">
         <h2>Sudoku Solver</h2>
         <div className="buttonContainer">
-          <button className = "solveButton">Solve</button>
+          <button onClick = {() => solveSudoku()} className = "solveButton">Solve</button>
           <button onClick = {() => verifySudoku()} className = "verifyButton">Verify</button>
           <button onClick = {() =>setSudokuArr(getDeepCopy(initial))}className = "clearButton">Clear</button>
         </div>
