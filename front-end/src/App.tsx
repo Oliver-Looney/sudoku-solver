@@ -64,7 +64,7 @@ function App() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
       if (xhttp.readyState === 4) {
-        alert(xhttp.response);
+        alert("still in progress\n" +  xhttp.response);
         console.log(xhttp);
       }
     }
