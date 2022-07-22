@@ -1,7 +1,13 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"log"
+
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/valyala/fastjson"
 )
 
 func isUnitValid(unit []int) bool {
@@ -69,21 +75,59 @@ func verifyBoxes(grid [][]int) bool {
 }
 
 func VerifyGrid(grid [][]int) bool {
+	log.Printf("EVENT: %t", verifyBoxes(grid))
+	log.Printf("EVENT: %t", verifyRows(grid))
+	log.Printf("EVENT: %t", verifyCols(grid))
+
 	return verifyBoxes(grid) && verifyRows(grid) && verifyCols(grid)
 }
 
-type MyEvent struct {
+// type MyEvent struct {
+// 	Grid [][]int `json:"grid"`
+// }
+
+// type MyResponse struct {
+// 	Message bool `json:"message"`
+// }
+
+// func HandleLambdaEvent(event MyEvent) (MyResponse, error) {
+// 	log.Printf("EVENT: %v", event)
+// 	log.Printf("EVENT.GRID: %v", event.Grid)
+// 	log.Printf("length of EVENT.GRID: %d", len(event.Grid))
+// 	return MyResponse{
+// 		Message: VerifyGrid(event.Grid)}, nil
+// }
+
+type jsonGrid struct {
 	Grid [][]int `json:"grid"`
 }
 
-type MyResponse struct {
-	Message bool `json:""`
+func BoolAddr(b bool) *bool {
+	boolVar := b
+	return &boolVar
 }
 
-func HandleLambdaEvent(event MyEvent) (MyResponse, error) {
-	return MyResponse{Message: VerifyGrid(event.Grid)}, nil
+func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	ApiResponse := events.APIGatewayProxyResponse{}
+	err := fastjson.Validate(request.Body)
+	log.Printf("EVENT: %v", request.Body)
+	var grid jsonGrid
+	Data := []byte(request.Body)
+	errJSON := json.Unmarshal(Data, &grid)
+	if errJSON != nil {
+		fmt.Println(errJSON)
+	}
+	result := VerifyGrid(grid.Grid)
+	if err != nil {
+		body := "Error: Invalid JSON payload ||| " + fmt.Sprint(err) + " Body Obtained" + "||||" + request.Body
+		ApiResponse = events.APIGatewayProxyResponse{Body: body, StatusCode: 500}
+	} else {
+		ApiResponse = events.APIGatewayProxyResponse{Body: fmt.Sprint(result), StatusCode: 200}
+	}
+	// Response
+	return ApiResponse, nil
 }
 
 func main() {
-	lambda.Start(HandleLambdaEvent)
+	lambda.Start(HandleRequest)
 }

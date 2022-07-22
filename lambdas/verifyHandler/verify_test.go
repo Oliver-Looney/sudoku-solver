@@ -273,3 +273,27 @@ func TestVerifyGridNotValid1(t *testing.T) {
 		t.Errorf("boxes %t", boxes)
 	}
 }
+
+// func TestHandleLambdaEvent(t *testing.T) {
+// 	grids := [][]int{
+// 		{7, 8, 5, 6, 1, 2, 3, 9, 4},
+// 		{9, 1, 4, 7, 8, 3, 2, 6, 5},
+// 		{3, 6, 2, 4, 9, 5, 8, 1, 7},
+// 		{6, 9, 1, 2, 7, 8, 5, 4, 3},
+// 		{4, 3, 7, 1, 5, 6, 9, 2, 8},
+// 		{2, 5, 8, 9, 3, 4, 1, 7, 6},
+// 		{1, 2, 3, 5, 6, 7, 4, 8, 9},
+// 		{8, 4, 6, 3, 2, 9, 7, 5, 1},
+// 		{5, 7, 9, 8, 4, 1, 6, 3, 2}}
+// 	event := MyEvent{
+// 		Grid: grids,
+// 	}
+// 	t.Parallel()
+// 	want := MyResponse{
+// 		Message: true,
+// 	}
+// 	got, _ := HandleLambdaEvent(event)
+// 	if want != got {
+// 		t.Errorf("Want %t, got %t", want.Message, got.Message)
+// 	}
+// }

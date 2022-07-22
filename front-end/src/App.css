@@ -57,6 +57,14 @@ td {
   border-radius:  20px;
 }
 
+.clearButton{
+  background-color: red;
+  font-weight: bold;
+  padding: 12px 20px;
+  border:none;
+  border-radius:  20px;
+}
+
 .bBorder{
   border-bottom: 2px solid black;
 }
