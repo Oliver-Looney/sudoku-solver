@@ -54,7 +54,7 @@ function App() {
       }
     }
     // xhttp.open("POST","https://wki05pg2og.execute-api.eu-west-1.amazonaws.com/default/sudoku-solver-verify/sudoku-solver-verify");
-    xhttp.open("POST","https://h5ly9ppjdg.execute-api.eu-west-1.amazonaws.com/default/postlambdatutorial");
+    xhttp.open("POST","https://px21zcm9fi.execute-api.eu-west-1.amazonaws.com/default/sudoku-solver-verify");
     // xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhttp.send(JSON.stringify({grid:sudokuArr}));
     console.log(JSON.stringify({grid:sudokuArr}));
