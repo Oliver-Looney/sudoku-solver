@@ -82,7 +82,7 @@ function App() {
           <button onClick = {() => verifySudoku()} className = "verifyButton">Verify</button>
           <button onClick = {() =>setSudokuArr(getDeepCopy(initial))}className = "clearButton">Clear</button>
         </div>
-        <button onClick = {() => populateWithCompletedSudoku() }>Populate sudoku</button>
+        <button onClick = {() => populateWithCompletedSudoku() }>Populate with example sudoku</button>
         <table>
           <tbody>
             {
@@ -99,22 +99,13 @@ function App() {
                 </tr>
               })
             }
-            <td>
-
-            </td>
           </tbody>
         </table>
+        <div><p>Source Code on Github: <a href="https://github.com/Oliver-Looney/sudoku-solver">https://github.com/Oliver-Looney/sudoku-solver</a></p></div>
+        <div><p>My Portfolio: <a href="http://oliverlooney.com/">http://oliverlooney.com/</a></p></div>
       </header>
     </div>
   );
 }
 
 export default App;
-
-function clearButton() {
-  throw new Error('Function not implemented.');
-}
-// function initial(initial: any): [any, any] {
-//   throw new Error('Function not implemented.');
-// }
-
