@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="function1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lambdas/verifyHandler/function.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

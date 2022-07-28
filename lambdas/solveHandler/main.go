@@ -1,13 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/valyala/fastjson"
 )
 
 func isSafeRow(grid [][]int, row int, num int) bool {
@@ -112,8 +106,64 @@ func revSolve(grid [][]int, result myResult) myResult {
 	return result
 }
 
-func solveGrid(result myResult) myResult {
-	return revSolve(result.Grid, myResult{Grid: result.Grid})
+func getNextBlank(grid [][]int) (int, int) {
+	for y := 0; y < 9; y++ {
+		for x := 0; x < 9; x++ {
+			if grid[y][x] == -1 {
+				return y, x
+			}
+		}
+	}
+	return -1, -1
+}
+
+func solveGrid(input myResult) myResult {
+	var stack Stack
+	stack.Push(possibleSolution{Grid: input.Grid})
+	var result myResult
+	for len(stack) > 0 {
+		// fmt.Printf("\nstack:\n%v\n\n", stack)
+		top, _ := stack.Pop()
+		y, x := getNextBlank(top.Grid)
+		if y == -1 {
+			fmt.Printf("hi")
+			fmt.Printf("%v", result)
+			result.Solvable = true
+			result.Solutions = append(result.Solutions, top.Grid)
+		} else {
+			for n := 1; n < 10; n++ {
+				if isSafe(top.Grid, y, x, n) {
+					newgrid := copyGrid(top.Grid)
+					newgrid[y][x] = n
+					stack.Push(possibleSolution{Grid: newgrid})
+					// top.Grid[y][x] = n
+					// copy := top
+					// stack.Push(copy)
+					// top.Grid[y][x] = -1
+				}
+			}
+		}
+	}
+	return result
+}
+
+func copyGrid(original [][]int) [][]int {
+	result := [][]int{
+		{7, 8, 5, 6, 1, 2, 3, 9, 4},
+		{9, 1, 4, 7, 8, 3, 2, 1, 1},
+		{3, 6, 2, 4, 9, 5, 8, 1, 7},
+		{6, 9, 1, 2, 7, 8, 5, 4, 3},
+		{4, 3, 7, 1, 5, 6, 9, 2, 8},
+		{2, 5, 8, 9, 3, 4, 1, 7, 6},
+		{1, 2, 3, 5, 6, 7, 4, 8, 9},
+		{8, 4, 6, 3, 2, 9, 7, 5, 1},
+		{5, 7, 9, 8, 4, 9, 6, 4, 1}}
+	for i := 0; i < 9; i++ {
+		for j := 0; j < 9; j++ {
+			result[i][j] = original[i][j]
+		}
+	}
+	return result
 }
 
 // func itSolve(grid [][]int) {
@@ -276,31 +326,48 @@ type myResult struct {
 	Solvable  bool
 }
 
-func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	ApiResponse := events.APIGatewayProxyResponse{}
-	err := fastjson.Validate(request.Body)
-	log.Printf("EVENT: %v", request.Body)
-	var grid jsonGrid
-	Data := []byte(request.Body)
-	errJSON := json.Unmarshal(Data, &grid)
-	if errJSON != nil {
-		fmt.Println(errJSON)
-	}
-	solveGridInput := myResult{
-		Grid:     grid.Grid,
-		Solvable: false,
-	}
-	result := solveGrid(solveGridInput)
-	if err != nil {
-		body := "Error: Invalid JSON payload ||| " + fmt.Sprint(err) + " Body Obtained" + "||||" + request.Body
-		ApiResponse = events.APIGatewayProxyResponse{Body: body, StatusCode: 500}
-	} else {
-		ApiResponse = events.APIGatewayProxyResponse{Body: fmt.Sprint(result), StatusCode: 200}
-	}
-	// Response
-	return ApiResponse, nil
-}
+// func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+// 	ApiResponse := events.APIGatewayProxyResponse{}
+// 	err := fastjson.Validate(request.Body)
+// 	log.Printf("EVENT: %v", request.Body)
+// 	var grid jsonGrid
+// 	Data := []byte(request.Body)
+// 	errJSON := json.Unmarshal(Data, &grid)
+// 	if errJSON != nil {
+// 		fmt.Println(errJSON)
+// 	}
+// 	solveGridInput := myResult{
+// 		Grid:     grid.Grid,
+// 		Solvable: false,
+// 	}
+// 	result := solveGrid(solveGridInput)
+// 	if err != nil {
+// 		body := "Error: Invalid JSON payload ||| " + fmt.Sprint(err) + " Body Obtained" + "||||" + request.Body
+// 		ApiResponse = events.APIGatewayProxyResponse{Body: body, StatusCode: 500}
+// 	} else {
+// 		ApiResponse = events.APIGatewayProxyResponse{Body: fmt.Sprint(result), StatusCode: 200}
+// 	}
+// 	// Response
+// 	return ApiResponse, nil
+// }
+
+// func main() {
+// 	lambda.Start(HandleRequest)
+// }
 
 func main() {
-	lambda.Start(HandleRequest)
+	grid := [][]int{
+		{7, -1, 5, 6, 1, 2, 3, -1, 4},
+		{-1, -1, 4, 7, -1, 3, 2, 6, 5},
+		{3, -1, -1, 4, -1, -1, -1, -1, -1},
+		{-1, -1, 1, -1, 7, 8, 5, -1, -1},
+		{-1, -1, 7, -1, 5, 6, 9, 2, 8},
+		{2, 5, -1, -1, 3, -1, 1, -1, -1},
+		{-1, 2, 3, -1, -1, 7, 4, 8, -1},
+		{-1, -1, 6, 3, 2, 9, 7, -1, 1},
+		{5, -1, 9, -1, 4, -1, -1, -1, 2}}
+	input := myResult{
+		Grid: grid,
+	}
+	solveGrid(input)
 }
