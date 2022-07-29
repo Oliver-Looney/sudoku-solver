@@ -74,3 +74,13 @@ td {
 }
 
 a { color:white; }
+
+.inputCell { 
+  background-color: beige;
+  width: 50px;;
+  height: 50px;
+  font-size: 30px;
+  text-align: center;
+  padding: 0px;
+  border: 1px solid black;
+}
