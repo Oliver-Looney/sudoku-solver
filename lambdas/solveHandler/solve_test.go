@@ -17,7 +17,9 @@ func TestIsSafeRowValid1(t *testing.T) {
 		{5, 7, 9, 8, 4, 9, 6, 4, 2}}
 	t.Parallel()
 	var want bool = true
-	got := isSafeRow(grid, 7, 1)
+	channel := make(chan bool)
+	go isSafeRow(grid, 7, 1, channel)
+	got := <-channel
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -36,7 +38,9 @@ func TestIsSafeRowValid2(t *testing.T) {
 		{5, -1, 9, -1, 4, -1, -1, -1, 2}}
 	t.Parallel()
 	var want bool = true
-	got := isSafeRow(grid, 2, 1)
+	channel := make(chan bool)
+	go isSafeRow(grid, 2, 1, channel)
+	got := <-channel
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -55,7 +59,9 @@ func TestIsSafeRowNotValid(t *testing.T) {
 		{5, 7, 9, 8, 4, 9, 6, 4, 2}}
 	t.Parallel()
 	var want bool = false
-	got := isSafeRow(grid, 8, 6)
+	channel := make(chan bool)
+	go isSafeRow(grid, 8, 6, channel)
+	got := <-channel
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -74,7 +80,9 @@ func TestIsSafeColValid1(t *testing.T) {
 		{5, 7, 9, 8, 4, 9, 6, 4, 2}}
 	t.Parallel()
 	var want bool = true
-	got := isSafeCol(grid, 7, 5)
+	channel := make(chan bool)
+	go isSafeCol(grid, 7, 5, channel)
+	got := <-channel
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -93,7 +101,9 @@ func TestIsSafeColValid2(t *testing.T) {
 		{5, -1, 9, -1, 4, -1, -1, -1, 2}}
 	t.Parallel()
 	var want bool = true
-	got := isSafeCol(grid, 7, 1)
+	channel := make(chan bool)
+	go isSafeCol(grid, 7, 1, channel)
+	got := <-channel
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -112,7 +122,9 @@ func TestIsSafeBoxValid1(t *testing.T) {
 		{5, 7, 9, 8, 4, 9, 6, 4, 2}}
 	t.Parallel()
 	var want bool = true
-	got := isSafeBox(grid, 1, 1, 6)
+	channel := make(chan bool)
+	go isSafeBox(grid, 1, 1, 6, channel)
+	got := <-channel
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -131,7 +143,9 @@ func TestIsSafeBoxValid2(t *testing.T) {
 		{5, -1, 9, -1, 4, -1, -1, -1, 2}}
 	t.Parallel()
 	var want bool = true
-	got := isSafeBox(grid, 7, 2, 1)
+	channel := make(chan bool)
+	go isSafeBox(grid, 7, 2, 1, channel)
+	got := <-channel
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -150,7 +164,9 @@ func TestIsSafeBoxNotValid(t *testing.T) {
 		{5, 7, 9, 8, 4, 9, 6, 4, 2}}
 	t.Parallel()
 	var want bool = false
-	got := isSafeBox(grid, 1, 1, 2)
+	channel := make(chan bool)
+	go isSafeBox(grid, 1, 1, 2, channel)
+	got := <-channel
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -169,7 +185,9 @@ func TestIsSafeColNotValid(t *testing.T) {
 		{5, 7, 9, 8, 4, 9, 6, 4, 2}}
 	t.Parallel()
 	var want bool = false
-	got := isSafeCol(grid, 8, 6)
+	channel := make(chan bool)
+	go isSafeCol(grid, 8, 6, channel)
+	got := <-channel
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -208,15 +226,8 @@ func TestIsSafeValid2(t *testing.T) {
 	t.Parallel()
 	var want bool = true
 	got := isSafe(grid, 2, 7, 1)
-	row := isSafeRow(grid, 2, 1)
-	col := isSafeCol(grid, 7, 1)
-	box := isSafeBox(grid, 2, 7, 1)
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
-		t.Errorf("row %t", row)
-		t.Errorf("col %t", col)
-		t.Errorf("box %t", box)
-		t.Errorf("and : %t", row && col && box)
 	}
 }
 
@@ -327,7 +338,7 @@ func TestGetNextBlank(t *testing.T) {
 		{5, 7, 9, 8, 4, 9, 6, 4, 1}}
 	t.Parallel()
 	want1, want2 := -1, -1
-	got1, got2 := getNextBlank(grid)
+	got1, got2 := getNextBlank(grid, 0)
 	if want1 != got1 {
 		t.Errorf("Want %d, got %d", want1, got1)
 	}

@@ -85,7 +85,9 @@ func TestVerifyRowsValid1(t *testing.T) {
 		{1, 2, 3, 4, 5, 6, 7, 8, 9}}
 	t.Parallel()
 	var want bool = true
-	got := verifyRows(validSudoku)
+	results := make(chan bool)
+	go verifyRows(validSudoku, results)
+	got := <-results
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -104,7 +106,9 @@ func TestVerifyRowsNotValid1(t *testing.T) {
 		{1, 9, 3, 4, 5, 6, 7, 8, 9}}
 	t.Parallel()
 	var want bool = false
-	got := verifyRows(validSudoku)
+	results := make(chan bool)
+	go verifyRows(validSudoku, results)
+	got := <-results
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -146,7 +150,9 @@ func TestVerifyColsValid1(t *testing.T) {
 		{9, 9, 9, 9, 9, 9, 9, 9, 9}}
 	t.Parallel()
 	var want bool = true
-	got := verifyCols(validSudoku)
+	results := make(chan bool)
+	go verifyCols(validSudoku, results)
+	got := <-results
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -165,7 +171,9 @@ func TestVerifyColsNotValid1(t *testing.T) {
 		{9, 9, 9, 9, 9, 9, 9, 9, 1}}
 	t.Parallel()
 	var want bool = false
-	got := verifyCols(validSudoku)
+	results := make(chan bool)
+	go verifyCols(validSudoku, results)
+	got := <-results
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
 	}
@@ -235,17 +243,8 @@ func TestVerifyGridValid1(t *testing.T) {
 	t.Parallel()
 	var want bool = true
 	got := VerifyGrid(validSudoku)
-	rows := verifyRows(validSudoku)
-	cols := verifyCols(validSudoku)
-	boxes := verifyBoxes(validSudoku)
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
-		t.Errorf("rows %t", rows)
-		for i := 0; i < 9; i++ {
-			t.Errorf("row %t", isUnitValid(validSudoku[i]))
-		}
-		t.Errorf("cols %t", cols)
-		t.Errorf("boxes %t", boxes)
 	}
 }
 
@@ -263,14 +262,8 @@ func TestVerifyGridNotValid1(t *testing.T) {
 	t.Parallel()
 	var want bool = false
 	got := VerifyGrid(validSudoku)
-	rows := verifyRows(validSudoku)
-	cols := verifyCols(validSudoku)
-	boxes := verifyBoxes(validSudoku)
 	if want != got {
 		t.Errorf("Want %t, got %t", want, got)
-		t.Errorf("rows %t", rows)
-		t.Errorf("cols %t", cols)
-		t.Errorf("boxes %t", boxes)
 	}
 }
 

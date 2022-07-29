@@ -10,48 +10,55 @@ import (
 	"github.com/valyala/fastjson"
 )
 
-func isSafeRow(grid [][]int, row int, num int) bool {
+func isSafeRow(grid [][]int, row int, num int, results chan bool) {
 	for i := 0; i < 9; i++ {
 		if grid[row][i] == num {
-			return false
+			results <- false
+			return
 		}
 	}
-	return true
+	results <- true
 }
 
-func isSafeBox(grid [][]int, row int, col int, num int) bool {
+func isSafeBox(grid [][]int, row int, col int, num int, results chan bool) {
 	startRow := row - row%3
 	startCol := col - col%3
 
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			if grid[i+startRow][j+startCol] == num {
-				return false
+				results <- false
+				return
 			}
 		}
 	}
-	return true
+	results <- true
 }
 
-func isSafeCol(grid [][]int, col int, num int) bool {
+func isSafeCol(grid [][]int, col int, num int, results chan bool) {
 	for i := 0; i < 9; i++ {
 		if grid[i][col] == num {
-			return false
+			results <- false
+			return
 		}
 	}
-	return true
+	results <- true
 }
 
 func isSafe(grid [][]int, i int, j int, num int) bool {
-	rowresult := isSafeRow(grid, i, num)
-	colresult := isSafeCol(grid, j, num)
-	box := isSafeBox(grid, i, j, num)
+	results := make(chan bool)
+	go isSafeRow(grid, i, num, results)
+	go isSafeCol(grid, j, num, results)
+	go isSafeBox(grid, i, j, num, results)
+	rowresult := <-results
+	colresult := <-results
+	box := <-results
 	return box && rowresult && colresult
 }
 
 type possibleSolution struct {
-	Grid     [][]int
-	position int
+	Grid   [][]int
+	yStart int
 }
 
 type Stack []possibleSolution
@@ -78,8 +85,8 @@ func (s *Stack) Pop() (possibleSolution, bool) {
 	}
 }
 
-func getNextBlank(grid [][]int) (int, int) {
-	for y := 0; y < 9; y++ {
+func getNextBlank(grid [][]int, yStart int) (int, int) {
+	for y := yStart; y < 9; y++ {
 		for x := 0; x < 9; x++ {
 			if grid[y][x] == -1 {
 				return y, x
@@ -95,7 +102,7 @@ func solveGrid(input myResult) myResult {
 	var result myResult
 	for len(stack) > 0 {
 		top, _ := stack.Pop()
-		y, x := getNextBlank(top.Grid)
+		y, x := getNextBlank(top.Grid, 0)
 		if y == -1 {
 			result.Solvable = true
 			result.Solutions = append(result.Solutions, top.Grid)
@@ -104,7 +111,11 @@ func solveGrid(input myResult) myResult {
 				if isSafe(top.Grid, y, x, n) {
 					newgrid := copyGrid(top.Grid)
 					newgrid[y][x] = n
-					stack.Push(possibleSolution{Grid: newgrid})
+					newgridYStart := 0
+					if y > 0 {
+						newgridYStart = y - 1
+					}
+					stack.Push(possibleSolution{Grid: newgrid, yStart: newgridYStart})
 				}
 			}
 		}

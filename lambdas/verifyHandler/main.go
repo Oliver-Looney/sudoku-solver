@@ -24,13 +24,14 @@ func isUnitValid(unit []int) bool {
 	return true
 }
 
-func verifyRows(grid [][]int) bool {
+func verifyRows(grid [][]int, results chan bool) {
 	for i := 0; i < 9; i++ {
 		if !isUnitValid(grid[i]) {
-			return false
+			results <- false
+			return
 		}
 	}
-	return true
+	results <- true
 }
 
 func colToArray(grid [][]int, row int) []int {
@@ -43,13 +44,14 @@ func colToArray(grid [][]int, row int) []int {
 	return result
 }
 
-func verifyCols(grid [][]int) bool {
+func verifyCols(grid [][]int, results chan bool) {
 	for i := 0; i < 9; i++ {
 		if !isUnitValid(colToArray(grid, i)) {
-			return false
+			results <- false
+			return
 		}
 	}
-	return true
+	results <- true
 }
 
 func boxToArray(grid [][]int, elementI int, elementJ int) []int {
@@ -62,24 +64,34 @@ func boxToArray(grid [][]int, elementI int, elementJ int) []int {
 	return result
 }
 
-func verifyBoxes(grid [][]int) bool {
+func verifyBoxes(grid [][]int, results chan bool) {
 	for _, elementI := range []int{0, 3, 6} {
 		for _, elementJ := range []int{0, 3, 6} {
 			box := boxToArray(grid, elementI, elementJ)
 			if !isUnitValid(box) {
-				return false
+				results <- false
+				return
 			}
 		}
 	}
-	return true
+	results <- true
 }
 
 func VerifyGrid(grid [][]int) bool {
-	log.Printf("EVENT: %t", verifyBoxes(grid))
-	log.Printf("EVENT: %t", verifyRows(grid))
-	log.Printf("EVENT: %t", verifyCols(grid))
-
-	return verifyBoxes(grid) && verifyRows(grid) && verifyCols(grid)
+	results := make(chan bool)
+	go verifyRows(grid, results)
+	go verifyCols(grid, results)
+	go verifyBoxes(grid, results)
+	rowResult := <-results
+	if !rowResult {
+		return false
+	}
+	colResult := <-results
+	if !colResult {
+		return false
+	}
+	boxResult := <-results
+	return boxResult
 }
 
 // type MyEvent struct {
@@ -100,11 +112,6 @@ func VerifyGrid(grid [][]int) bool {
 
 type jsonGrid struct {
 	Grid [][]int `json:"grid"`
-}
-
-func BoolAddr(b bool) *bool {
-	boolVar := b
-	return &boolVar
 }
 
 func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
