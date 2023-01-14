@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import './App.css';
-import {getDeepCopy, initial, solveSudokuURL, verifySudokuURL} from "./constants";
+import { initial, solveSudokuURL, verifySudokuURL} from "./constants";
+import {getCellType, getDeepCopy} from "./utils";
 
 function App() {
   const [sudokuArr, setSudokuArr] = useState(getDeepCopy(initial));
   const [solvedSudokusArr, setSolvedSudokusArr] = useState([getDeepCopy(initial)]);
-
+  const [unsolvedSudokuArr, setUnolvedSudokusArr] = useState(null);
   function onInputChange(e: { target: { value: string; }; }, row:number, col:number){
     const val = parseInt(e.target.value) || -1, grid = getDeepCopy(sudokuArr);
     if (val === -1 || (val >= 1 && val <=9)){
@@ -46,6 +47,7 @@ function App() {
         if (xhttp.status === 200){
           let obj = JSON.parse(xhttp.response);
           if (obj.Solvable === true) {
+            setUnolvedSudokusArr(getDeepCopy(sudokuArr))
             setSolvedSudokusArr(getDeepCopy(obj.Solutions));
           } else {
             alert("No solutions for this sudoku")
@@ -64,6 +66,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h2>Sudoku Solver</h2>
+        <h4>Play Sudoku:</h4>
         <div className="buttonContainer">
           <button onClick = {() => solveSudoku()} className = "solveButton">Solve</button>
           <button onClick = {() => verifySudoku(sudokuArr)} className = "verifyButton">Verify</button>
@@ -88,10 +91,10 @@ function App() {
             }
           </tbody>
         </table>
-        <h5>Solution:</h5>
+        <h4>Solve Sudoku:</h4>
         <div className="buttonContainer">
         <button onClick = {() => verifySudoku(solvedSudokusArr[0])} className = "verifyButton">Verify</button>
-        <button onClick = {() =>setSolvedSudokusArr([getDeepCopy(initial)])} className = "clearButton">Clear</button>
+        <button onClick = {() => setSolvedSudokusArr([getDeepCopy(initial)])} className = "clearButton">Clear</button>
         </div>
         <table>
           <tbody>
@@ -102,7 +105,7 @@ function App() {
                     return <td key = {rindex + cindex} className ={(col + 1) % 3 === 0 ? 'rBorder': ''}>
                     <input 
                       value = {solvedSudokusArr[0][row][col] === -1 ? '': solvedSudokusArr[0][row][col]}
-                      className ={solvedSudokusArr[0][row][col] !== sudokuArr[row][col] || solvedSudokusArr[0][row][col] === -1 ? 'cellInput': 'inputCell'}
+                      className ={getCellType(solvedSudokusArr[0],unsolvedSudokuArr,row,col)}
                       />
                   </td>
                   })}
@@ -112,7 +115,7 @@ function App() {
           </tbody>
         </table>
         <div><p>Source Code on Github: <a href="https://github.com/Oliver-Looney/sudoku-solver">https://github.com/Oliver-Looney/sudoku-solver</a></p></div>
-         <div><p>My Portfolio: <a href="http://oliverlooney.com/">http://oliverlooney.com/</a></p></div>
+         {/*<div><p>My Portfolio: <a href="http://oliverlooney.com/">http://oliverlooney.com/</a></p></div>*/}
       </header>
     </div>
   );
