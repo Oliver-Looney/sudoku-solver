@@ -65,6 +65,14 @@ td {
   border-radius:  20px;
 }
 
+.playButton{
+  background-color: royalblue;
+  font-weight: bold;
+  padding: 12px 20px;
+  border:none;
+  border-radius:  20px;
+}
+
 .bBorder{
   border-bottom: 3px solid black;
 }

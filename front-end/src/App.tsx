@@ -5,17 +5,19 @@ import {getCellType, getDeepCopy} from "./utils";
 
 function App() {
   const [sudokuArr, setSudokuArr] = useState(getDeepCopy(initial));
+  const [sudokuArrStart, setSudokuArrStart] = useState(getDeepCopy(initial));
   const [solvedSudokusArr, setSolvedSudokusArr] = useState([getDeepCopy(initial)]);
   const [unsolvedSudokuArr, setUnolvedSudokusArr] = useState(null);
+
   function onInputChange(e: { target: { value: string; }; }, row:number, col:number){
     const val = parseInt(e.target.value) || -1, grid = getDeepCopy(sudokuArr);
-    if (val === -1 || (val >= 1 && val <=9)){
+    if ((val === -1 || (val >= 1 && val <=9)) && sudokuArrStart[row][col] === -1){
       grid[row][col] = val;
     }
     setSudokuArr(grid);
   }
 
-  function populateWithCompletedSudoku() {
+  function getNewSudoku() {
     const grid = [
       [7, -1, 5, 6, 1, 2, 3, 9, 4],
       [-1, -1, 4, 7, -1, 3, 2, 6, 5],
@@ -26,6 +28,7 @@ function App() {
       [-1, 2, 3, -1, -1, 7, 4, 8, -1],
       [-1, -1, 6, 3, 2, 9, 7, -1, 1],
       [5, -1, 9, -1, 4, -1, -1, -1, 2]]
+    setSudokuArrStart(getDeepCopy(grid))
     setSudokuArr(getDeepCopy(grid))
   }
 
@@ -72,7 +75,7 @@ function App() {
           <button onClick = {() => verifySudoku(sudokuArr)} className = "verifyButton">Verify</button>
           <button onClick = {() =>setSudokuArr(getDeepCopy(initial))} className = "clearButton">Clear</button>
         </div>
-        <button onClick = {() => populateWithCompletedSudoku() }>Populate with example sudoku</button>
+        <button onClick = {() => getNewSudoku() } className="playButton">Play A New Sudoku</button>
         <table>
           <tbody>
             {
@@ -82,7 +85,8 @@ function App() {
                     return <td key = {rindex + cindex} className ={(col + 1) % 3 === 0 ? 'rBorder': ''}>
                     <input onChange = { (e) => onInputChange(e, row, col )}
                       value = {sudokuArr[row][col] === -1 ? '': sudokuArr[row][col]}
-                      className="cellInput"
+                      // className="cellInput"
+                        className ={getCellType(sudokuArr,sudokuArrStart,row,col)}
                       />
                   </td>
                   })}
