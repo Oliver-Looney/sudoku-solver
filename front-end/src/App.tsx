@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import { initial, solveSudokuURL, verifySudokuURL} from "./constants";
 import {getCellType, getDeepCopy} from "./utils";
+import { makepuzzle } from "sudoku";
 
 function App() {
   const [sudokuArr, setSudokuArr] = useState(getDeepCopy(initial));
@@ -21,16 +22,21 @@ function App() {
   }
 
   function getNewSudoku() {
-    const grid = [
-      [7, -1, 5, 6, 1, 2, 3, 9, 4],
-      [-1, -1, 4, 7, -1, 3, 2, 6, 5],
-      [3, -1, -1, 4, -1, -1, -1, -1, -1],
-      [-1, -1, 1, -1, 7, 8, 5, -1, -1],
-      [-1, -1, 7, -1, 5, 6, 9, 2, 8],
-      [2, 5, -1, -1, 3, -1, 1, -1, -1],
-      [-1, 2, 3, -1, -1, 7, 4, 8, -1],
-      [-1, -1, 6, 3, 2, 9, 7, -1, 1],
-      [5, -1, 9, -1, 4, -1, -1, -1, 2]]
+    const puzzle = makepuzzle();
+  let grid = [];
+  let row = [];
+  for (let i = 0; i < puzzle.length; i++) {
+    if (puzzle[i] === null) {
+      puzzle[i] = -1;
+    } else {
+      puzzle[i]++;
+    }
+    row.push(puzzle[i]);
+    if (row.length === 9) {
+      grid.push(row);
+      row = [];
+    }
+  }
     setSudokuArrStart(getDeepCopy(grid))
     setSudokuArr(getDeepCopy(grid))
   }
@@ -91,7 +97,7 @@ function App() {
                 return <tr key = {rindex} className ={(row + 1) % 3 === 0 ? 'bBorder': ''}>
                   {[0,1,2,3,4,5,6,7,8].map((col,cindex) => { 
                     return <td key = {rindex + cindex} className ={(col + 1) % 3 === 0 ? 'rBorder': ''}>
-                    <input onChange = { (e) => onInputChangePlay(e, row, col, setSudokuArr, sudokuArr, sudokuArrStart )}
+                    <input type="number" onChange = { (e) => onInputChangePlay(e, row, col, setSudokuArr, sudokuArr, sudokuArrStart )}
                       value = {sudokuArr[row][col] === -1 ? '': sudokuArr[row][col]}
                         className ={getCellType(sudokuArr,sudokuArrStart,row,col)}
                       />
@@ -115,7 +121,7 @@ function App() {
                 return <tr key = {rindex} className ={(row + 1) % 3 === 0 ? 'bBorder': ''}>
                   {[0,1,2,3,4,5,6,7,8].map((col,cindex) => { 
                     return <td key = {rindex + cindex} className ={(col + 1) % 3 === 0 ? 'rBorder': ''}>
-                    <input onChange = { (e) => onInputChangePlay(e, row, col, setSolvedSudokusArr, solvedSudokusArr, unsolvedSudokuArr )}
+                    <input type="number" onChange = { (e) => onInputChangePlay(e, row, col, setSolvedSudokusArr, solvedSudokusArr, unsolvedSudokuArr )}
                       value = {solvedSudokusArr[row][col] === -1 ? '': solvedSudokusArr[row][col]}
                       className ={getCellType(solvedSudokusArr,unsolvedSudokuArr,row,col)}
                       />
