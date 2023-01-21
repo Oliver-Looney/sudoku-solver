@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './App.css';
-import { initial, solveSudokuURL, verifySudokuURL} from "./constants";
+import { initial, solveSudokuURL,verifySudokuURL} from "./constants";
 import {getDeepCopy} from "./utils";
 import { makepuzzle } from "sudoku";
 import { SudokuBoard } from "./Components/SudokuBoard";
@@ -9,6 +9,10 @@ function App() {
   const [sudokuArrStart, setSudokuArrStart] = useState(getDeepCopy(initial));
   const [solvedSudokusArr, setSolvedSudokusArr] = useState(getDeepCopy(initial));
   const [unsolvedSudokuArr, setUnsolvedSudokusArr] = useState(null);
+
+  useEffect(() => {
+    getNewSudoku();
+  },[]);
 
   function getNewSudoku() {
     const puzzle = makepuzzle();
@@ -68,6 +72,10 @@ function App() {
     setUnsolvedSudokusArr(null);
   }
 
+  const clearPlayGrid = (setSudoku: (arg0: number[][]) => void, originalSudoku: number[][]) => {
+    setSudoku(getDeepCopy(originalSudoku));
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -76,10 +84,10 @@ function App() {
         <div className="buttonContainer">
           <button onClick = {() => solveSudoku(sudokuArrStart)} className = "solveButton">Solve</button>
           <button onClick = {() => verifySudoku(sudokuArr)} className = "verifyButton">Verify</button>
-          <button onClick = {() => setSudokuArr(getDeepCopy(sudokuArrStart))} className = "clearButton">Clear</button>
+          <button onClick = {() => clearPlayGrid(setSudokuArr,sudokuArrStart)} className = "clearButton">Clear</button>
         </div>
-        <button onClick = {() => getNewSudoku() } className="playButton">Play A New Sudoku</button>
         {SudokuBoard(sudokuArr,setSudokuArr,sudokuArrStart)}
+        <button onClick = {() => getNewSudoku() } className="playButton">Play A New Sudoku</button>
         <h4>Solve Sudoku:</h4>
         <div className="buttonContainer">
           <button onClick = {() => solveSudoku(solvedSudokusArr)} className = "solveButton">Solve</button>
@@ -88,7 +96,7 @@ function App() {
         </div>
         {SudokuBoard(solvedSudokusArr,setSolvedSudokusArr,unsolvedSudokuArr)}
         <div><p>Source Code on Github: <a href="https://github.com/Oliver-Looney/sudoku-solver">https://github.com/Oliver-Looney/sudoku-solver</a></p></div>
-         {/*<div><p>My Portfolio: <a href="http://oliverlooney.com/">http://oliverlooney.com/</a></p></div>*/}
+         <div><p><a href="http://oliverlooney.com/">http://oliverlooney.com/</a></p></div>
       </header>
     </div>
   );
